@@ -4,7 +4,7 @@ author:
 bibliography:
 - /home/dbarcene/Documents/bibliography/ref.bib
 date: 2026-02-24
-title: Práctica - *Slurm, BWA*
+title: Práctica - 1 *Slurm, BWA y Samtools*
 ---
 
 **Objetivo:** Ejecutar el programa *BWA* con un set de datos reales
@@ -112,7 +112,115 @@ solo nodo. En este script se colocan los comentarios **#SBATCH** luego
 del shebang y los programas **bwa** y **samtools** se corren utilizando
 el comando **srun** de **SLURM** para que sean gestionados.
 
-Y un segundo script **run_sbatch.sh** en el cual se corre el comando
-**sbatch** de **SLURM** llamando al script **sample_proc.sh** dentro de
-un ciclo **for** que corre sobre cada muestra en el directorio
-**reads**.
+    #!/bin/bash
+    #SBATCH --job-name=bio_pipe
+    #SBATCH --cpus-per-task=30  
+
+    # The sample name is passed as the first argument to the script
+    if [ -z "$1"  ]; then
+            echo "Error [1]: No sample name provided." 
+            exit 1
+    fi
+        
+    # Path variables
+    READS_DIR="./reads"
+    OUTPUT_DIR="./BAM"
+    REF="./ref/LpmP_2025_union.fasta"
+
+    # Make output dir if doesn't exist yet
+    mkdir -p $OUTPUT_DIR
+
+    MUESTRA=$1
+    echo "--- Starting Processing for: ${MUESTRA} ---" 
+
+    ################################# BWA ########################################
+    # Step 0: BWA 
+    echo "Step 0: Mapping with BWA"
+
+    srun bwa mem -t $SLURM_CPUS_PER_TASK \
+        -o ${OUTPUT_DIR}/${MUESTRA}_LpmP.sam \
+        ${REF} \
+        ${READS_DIR}/${MUESTRA}_1.fq \
+        ${READS_DIR}/${MUESTRA}_2.fq 
+        
+
+Nótese que luego de **-t** no se define un número directo de cpus, en
+vez se llama la variable interna **\$SLURM_CPUS_PER_TASK**, la cual está
+definida por el comando **#SBATCH --cpus-per-task=30**
+
+El uso de este script tiene la siguiente sintaxis:
+
+``` {.BASH language="BASH"}
+./sample_proc.sh sample_name
+```
+
+    ############################### SAMTOOLS #####################################
+    # Step 1: Samtools View
+    echo "Step 1: Samtools View"
+
+    srun samtools view -b -@ $SLURM_CPUS_PER_TASK \
+        -o ${OUTPUT_DIR}/${MUESTRA}_LpmP_unsorted.bam \
+        ${OUTPUT_DIR}/${MUESTRA}_LpmP.sam
+
+
+
+    # Step 2: Samtools Sort
+    echo "Step 2: Sorting BAM"
+
+    srun samtools sort -@ $SLURM_CPUS_PER_TASK \
+        -o ${OUTPUT_DIR}/${MUESTRA}_LpmP.bam \
+        ${OUTPUT_DIR}/${MUESTRA}_LpmP_unsorted.bam
+
+
+
+    # Step 3: Samtools Index
+    echo "Step 3: Indexing"
+    srun samtools index -@ $SLURM_CPUS_PER_TASK \
+        ${OUTPUT_DIR}/${MUESTRA}_LpmP.bam
+
+
+
+    # Step 4: Samtools Stats
+    echo "Step 4: Generating Stats"
+    srun --output=${OUTPUT_DIR}/${MUESTRA}_stats.txt samtools flagstat -@ $SLURM_CPUS_PER_TASK \
+        ${OUTPUT_DIR}/${MUESTRA}_LpmP.bam 
+
+    echo "--- Finished Processing for: $MUESTRA ---"
+        
+
+**Nota**: Para los outputs de cada programa de la suite **samtools** se
+debe revisar si tienen salida en stdout (standard output). **samtools
+flagstat** es un ejemplo claro de un programa sin salida en stdout, por
+lo cual se le indica a **srun** el archivo de salida mediante la opción
+**--outpput**.\
+Y el segundo script **run_sbatch.sh** es un orquestrador que actúa como
+lanzador principal, automatizando el envío de múltiples tareas al
+cluster mediante el comando **sbatch** de **SLURM** para enviar el
+primer **run_sbatch.sh** a la cola del cluster. **SLURM** se encargará
+de distribuir las tareas en los nodos disponibles. En el caso de que
+hayan más tareas que nodos disponibles, las tareas extra quedaran
+pendientes en cola de espera.
+
+``` {.BASH language="BASH"}
+#!/bin/bash
+READS_DIR="reads"
+
+for READ1 in ${READS_DIR}/*_1.fq; do
+    # Strip filename to get sample name
+    FILENAME=$(basename "$READ1")
+    MUESTRA=${FILENAME%_1.fq}
+                    
+    echo "Submitting job for sample: ${MUESTRA}"
+        
+    # Launch the processing script and pass the sample
+    # name as an argument
+    sbatch --job-name="$MUESTRA" sample_proc.sh "$MUESTRA"
+done
+```
+
+Pra poder revisar que tarea se está ejecutando en el cluster se pueden
+utilizar las opciones **sacct** que muestra información de la base de
+datos de **SLURM**, o mediante **squeue -u username** para ver que
+tareas ejecuta nuestro usuario. Adicionalmente se colocó la opción
+**srun --job-name=\$MUESTRA**, mediante la cual se le coloca le nombre
+de muestra a cada tarea ejecutada por el orquestrador.
