@@ -8,8 +8,6 @@
 ---
 author:
 - David Barcene  <dbarcene@indicasat.org.pa>
-bibliography:
-- /home/dbarcene/Documents/bibliography/ref.bib
 date: 2026-02-24
 title: Práctica - 1 *Slurm, BWA y Samtools*
 ---

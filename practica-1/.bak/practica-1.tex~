@@ -14,8 +14,6 @@
 \usepackage[spanish]{babel}
 \usepackage{mathrsfs, amsmath, amssymb}
 \usepackage[hidelinks]{hyperref}
-\usepackage[backend=biber, style=apa]{biblatex}
-\addbibresource{/home/dbarcene/Documents/bibliography/ref.bib}
 
 
 % figure support
@@ -272,6 +270,5 @@ ejecuta nuestro usuario. Adicionalmente se colocó la opción \textbf{srun
 --job-name=\$MUESTRA}, mediante la cual se le coloca le nombre de muestra a cada
 tarea ejecutada por el orquestrador.
 
-\printbibliography
 
 \end{document}
