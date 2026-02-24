@@ -1,6 +1,5 @@
-./.bak/
-./.swp/
-..gitignore.un~
+.*
+!.gitignore
 *.aux
 *.fdb_latexmk
 *.fls
