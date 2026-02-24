@@ -1,0 +1,118 @@
+---
+author:
+- David Barcene  <david.barcene@utp.ac.pa>
+bibliography:
+- /home/dbarcene/Documents/bibliography/ref.bib
+date: 2026-02-24
+title: Práctica - *Slurm, BWA*
+---
+
+**Objetivo:** Ejecutar el programa *BWA* con un set de datos reales
+reproduciendo los resultados, para poder entender como se ejecutan los
+comandos con *Slurm*.
+
+# Directorios
+
+El directorio rincipal **\~/data** consta de 3 subdirectorios:
+
+- **reads**: Datos de seccuenciación, 12 muestras en sus
+  correspondientes archivos.
+
+- **ref**: Genomas de referencia indexados.
+
+- **BAM**: directorio output
+
+# Procedimiento
+
+1.  Ejecutar el programa **BWA** para alinear la muestra al genoma de
+    referencia.f En cada paso reemplazar la palabra \"muestra\" con el
+    nombre de la muestra (ej. **BAL_C1_3h**, **BAL_C2_3h**, etc.).
+
+                bwa mem -t 30 -o BAM/BAL_C1_3h_LpmP.sam \
+                ref/LpmP_2025_union.fasta \
+                reads/muestra_1.fq \
+                reads/muestra_2.fq 
+
+2.  Ejecutar el programa **samtools** en tres pasos para generar un
+    fichero binario de alineamiento en formato **BAM**
+
+                # Paso 1: view
+                samtools view -b -@ 30 \
+                -o BAM/BAL_C1_3h_LpmP_unsorted.bam\
+                BAM/BAL_C1_3h_LpmP.sam
+
+                # Paso 2: sort
+                samtools sort -b -@ 30 \
+                -o BAM/BAL_C1_3h_LpmP.bam\
+                BAM/BAL_C1_3h_LpmP_unsorted.sam
+
+                # Paso 3: index
+                samtools index BAM/BAL_C1_3h_LpmP.bam
+
+3.  Ejecutar el programa **samtools** nuevamente para guardar las
+    estadísticas de alineamiento
+
+                samtools flagstat -@ 30 BAM/BAL_C1_3h_LpmP,bam >
+                muestra_stats.txt
+
+**Nota**: Las opciones **bwa -t** y **samtools -$@$** indican el número
+de núcleos. Este debe coincidir con el que se le solicite a Slurm via
+**#SBATCH --cpus-per-task**. El máximo numero de núcleos por nodo es
+40.\
+
+``` {caption="Directory Tree"}
+data
+|____BAM
+|____ref
+| |____LpmP_2025_union.fasta
+| |____LpmP_2025_union.fasta.amb
+| |____LpmP_2025_union.fasta.ann
+| |____LpmP_2025_union.fasta.bwt
+| |____LpmP_2025_union.fasta.pac
+| |____LpmP_2025_union.fasta.sa
+|____reads
+| |____BAL_C1_3h_1.fq
+| |____BAL_C1_3h_2.fq
+| |____BAL_C2_3h_1.fq
+| |____BAL_C2_3h_2.fq
+| |____BAL_C3_3h_1.fq
+| |____BAL_C3_3h_2.fq
+| |____BAL_I1_3h_1.fq
+| |____BAL_I1_3h_2.fq
+| |____BAL_I2_3h_1.fq
+| |____BAL_I2_3h_2.fq
+| |____BAL_I3_3h_1.fq
+| |____BAL_I3_3h_2.fq
+| |____BL6_C1_3h_1.fq
+| |____BL6_C1_3h_2.fq
+| |____BL6_C2_3h_1.fq
+| |____BL6_C2_3h_2.fq
+| |____BL6_C3_3h_1.fq
+| |____BL6_C3_3h_2.fq
+| |____BL6_I1_3h_1.fq
+| |____BL6_I1_3h_2.fq
+| |____BL6_I2_3h_1.fq
+| |____BL6_I2_3h_2.fq
+| |____BL6_I3_3h_1.fq
+| |____BL6_I3_3h_2.fq
+```
+
+# Resultados
+
+Inicialmente se redactaron tres scripts para ejecutar 3 pasos de
+procesamiento sobre todas las muestras de forma secuencial sobre un solo
+nodo. Esta solución implica que se debe esperar a que se ejecuten todos
+los pasos sobre una sola muestra para poder continuar con la siguiente.
+
+## Paralelización
+
+Se redactaron dos scripts, el primero llamado **sample_proc.sh** que
+contiene todos los pasos para el tratamiento de una sola muestra en un
+solo nodo. En este script se colocan los comentarios **#SBATCH** luego
+del shebang y los programas **bwa** y **samtools** se corren utilizando
+el comando **srun** de **SLURM** para que sean gestionados.
+
+Y un segundo script **run_sbatch.sh** en el cual se corre el comando
+**sbatch** de **SLURM** llamando al script **sample_proc.sh** dentro de
+un ciclo **for** que corre sobre cada muestra en el directorio
+**reads**.

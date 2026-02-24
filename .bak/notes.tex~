@@ -1,0 +1,112 @@
+% File              : notes.tex
+% Author            : David Barcene <david.barcene@utp.ac.pa>
+% Date              : 20.02.2026
+% Last Modified Date: 20.02.2026
+% Last Modified By  : David Barcene <david.barcene@utp.ac.pa>
+
+\documentclass[letter]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage[spanish]{babel}
+\usepackage{mathrsfs, amsmath, amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage[backend=biber, style=apa]{biblatex}
+\addbibresource{/home/dbarcene/Documents/bibliography/ref.bib}
+
+
+% figure support
+\usepackage{graphicx}
+\graphicspath{ {./figures/} }
+\usepackage{import}
+\usepackage{xifthen}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\newcommand{\incfig}[1]{%
+	\def\svgwidth{\columnwidth}
+	\import{./figures/}{#1.pdf_tex}
+}
+
+% Extra packages
+\usepackage{listings}
+
+\lstset{
+	basicstyle=\ttfamily\small,
+	columns=flexible,
+	keepspaces=true,
+	literate={|--}{|--}1 {|____}{|____}5 {|}{|}1, % Optional: helps spacing
+	breaklines=true,
+	extendedchars=true
+}
+
+
+\begin{document}
+\title{Práctica - \textit{Slurm, BWA}}
+\author{David Barcene \ \href{mailto:david.barcene@utp.ac.pa}{david.barcene@utp.ac.pa}}
+\date\today
+
+\maketitle
+
+\textbf{Objetivo:} Ejecutar el programa \textit{BWA} con un set de datos reales 
+reproduciendo los resultados, para poder entender como se ejecutan los comandos
+con \textit{Slurm}.
+
+\section{Directorios}
+
+El directorio rincipal \textbf{\~{}/data} consta de 3 subdirectorios:
+\begin{itemize}
+	\item\textbf{/reads}: Datos de seccuenciación, 12 muestras en sus
+		correspondientes archivos.
+	\item\textbf{/ref}: Genomas de referencia indexados.
+	\item \textbf{/BAM}: directorio output
+\end{itemize}
+
+\section{Procedimiento}
+Ejecutar el programa \textbf{BWA} para alinear la muestra al genoma de
+referencia.f En cada paso reemplazar la palabra "muestra" con el nombre de la
+muestra (ej. \textbf{BAL\_C1\_3h}, \textbf{BAL\_C2\_3h}, etc.).
+
+
+
+\pagebreak
+\begin{lstlisting}[caption={Directory Tree}]
+data
+|____BAM
+|____ref
+| |____LpmP_2025_union.fasta
+| |____LpmP_2025_union.fasta.amb
+| |____LpmP_2025_union.fasta.ann
+| |____LpmP_2025_union.fasta.bwt
+| |____LpmP_2025_union.fasta.pac
+| |____LpmP_2025_union.fasta.sa
+|____reads
+| |____BAL_C1_3h_1.fq
+| |____BAL_C1_3h_2.fq
+| |____BAL_C2_3h_1.fq
+| |____BAL_C2_3h_2.fq
+| |____BAL_C3_3h_1.fq
+| |____BAL_C3_3h_2.fq
+| |____BAL_I1_3h_1.fq
+| |____BAL_I1_3h_2.fq
+| |____BAL_I2_3h_1.fq
+| |____BAL_I2_3h_2.fq
+| |____BAL_I3_3h_1.fq
+| |____BAL_I3_3h_2.fq
+| |____BL6_C1_3h_1.fq
+| |____BL6_C1_3h_2.fq
+| |____BL6_C2_3h_1.fq
+| |____BL6_C2_3h_2.fq
+| |____BL6_C3_3h_1.fq
+| |____BL6_C3_3h_2.fq
+| |____BL6_I1_3h_1.fq
+| |____BL6_I1_3h_2.fq
+| |____BL6_I2_3h_1.fq
+| |____BL6_I2_3h_2.fq
+| |____BL6_I3_3h_1.fq
+| |____BL6_I3_3h_2.fq
+\end{lstlisting}	
+
+\printbibliography
+
+\end{document}

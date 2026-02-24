@@ -1,0 +1,37 @@
+|____data
+| |____BAM
+| |____ref
+| | |____LpmP_2025_union.fasta
+| | |____LpmP_2025_union.fasta.amb
+| | |____LpmP_2025_union.fasta.ann
+| | |____LpmP_2025_union.fasta.bwt
+| | |____LpmP_2025_union.fasta.pac
+| | |____LpmP_2025_union.fasta.sa
+| |____reads
+| | |____BAL_C1_3h_1.fq
+| | |____BAL_C1_3h_2.fq
+| | |____BAL_C2_3h_1.fq
+| | |____BAL_C2_3h_2.fq
+| | |____BAL_C3_3h_1.fq
+| | |____BAL_C3_3h_2.fq
+| | |____BAL_I1_3h_1.fq
+| | |____BAL_I1_3h_2.fq
+| | |____BAL_I2_3h_1.fq
+| | |____BAL_I2_3h_2.fq
+| | |____BAL_I3_3h_1.fq
+| | |____BAL_I3_3h_2.fq
+| | |____BL6_C1_3h_1.fq
+| | |____BL6_C1_3h_2.fq
+| | |____BL6_C2_3h_1.fq
+| | |____BL6_C2_3h_2.fq
+| | |____BL6_C3_3h_1.fq
+| | |____BL6_C3_3h_2.fq
+| | |____BL6_I1_3h_1.fq
+| | |____BL6_I1_3h_2.fq
+| | |____BL6_I2_3h_1.fq
+| | |____BL6_I2_3h_2.fq
+| | |____BL6_I3_3h_1.fq
+| | |____BL6_I3_3h_2.fq
+| |____dirtree.txt
+| |____.bak
+| |____.swp
