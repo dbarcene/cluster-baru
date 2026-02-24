@@ -1,8 +1,8 @@
 % File              : practica-1.tex
-% Author            : David Barcene <david.barcene@utp.ac.pa>
+% Author            : David Barcene <dbarcene@indicasat.org.pa>
 % Date              : 20.02.2026
 % Last Modified Date: 24.02.2026
-% Last Modified By  : David Barcene <david.barcene@utp.ac.pa>
+% Last Modified By  : David Barcene <dbarcene@indicasat.org.pa>
 
 \documentclass[letter]{article}
 
@@ -265,6 +265,12 @@ for READ1 in ${READS_DIR}/*_1.fq; do
 done
 \end{lstlisting}
 
+Pra poder revisar que tarea se está ejecutando en el cluster se pueden utilizar
+las opciones \textbf{sacct} que muestra información de la base de datos de
+\textbf{SLURM}, o mediante \textbf{squeue -u username} para ver que tareas
+ejecuta nuestro usuario. Adicionalmente se colocó la opción \textbf{srun
+--job-name=\$MUESTRA}, mediante la cual se le coloca le nombre de muestra a cada
+tarea ejecutada por el orquestrador.
 
 \printbibliography
 
