@@ -5,11 +5,5 @@
 *.fls
 *.log
 *.pdf
+*.tex
 *.synctex.gz
-./practica-1/*.aux
-./practica-1/*.fdb_latexmk
-./practica-1/*.fls
-./practica-1/*.log
-./practica-1/*.pdf
-./practica-1/*.synctex.gz
-
